@@ -1,5 +1,7 @@
  /*Proyecto Final*/
 
+
+
  // LCD module connections
 sbit LCD_RS at RB4_bit;
 sbit LCD_EN at RB5_bit;
@@ -22,10 +24,8 @@ char txt[4];
 char txt2[4];
 char txt3[4];
 
-//Funcion que permite enviar cadenas
-//de caracteres de cualquier tamaño vía UART
+//Permite enviar la cadena de carateres
 void transmision(char *cadena){
-
      int size,i;
      size=strlen(cadena);
      Delay_ms(1000);
@@ -46,9 +46,7 @@ void main() {
   ANSELH = 0;                 // Configure other AN pins as digital I/O
   C1ON_bit = 0;               // Disable comparators
   C2ON_bit = 0;
-  
-  UART1_Init(9600);           // (8 bit, 9600 baud rate, no parity bit)
-  Delay_ms(100);
+  UART1_Init(9600);
 
   TRISA  = 0xFF;              // PORTA is input
   TRISB  = 0x00;              // PORTB is output
@@ -59,8 +57,12 @@ void main() {
   Lcd_Init();                 // Initialize LCD
   Lcd_Cmd(_LCD_CLEAR);               // Clear display
   Lcd_Cmd(_LCD_CURSOR_OFF);          // Cursor off
-  Lcd_Out(1,1,"Iniciando");          // Write text in first row
+  Lcd_Out(1,1,"Nevera");
+  Lcd_Out(2,1,"Inteligente");
   Delay_1sec();
+  Lcd_Cmd(_LCD_CLEAR);               // Clear display
+  Lcd_Cmd(_LCD_CURSOR_OFF);          // Cursor off
+  Lcd_Out(1,1,"Iniciando");          // Write text in first row
   Delay_1sec();
   Lcd_Cmd(_LCD_CLEAR);               // Clear display
   Lcd_Cmd(_LCD_CURSOR_OFF);          // Cursor off
@@ -71,12 +73,14 @@ void main() {
      //Lectura del sensor LM35
     lm35 = ADC_Read(2);
     temperatura = (lm35*150)/307;
-
+    
+    
     //Validación para la luz de la nevera. Ahorro de energia
      if (RE0_bit==1) {
      RC0_bit=0;}
      else {
      RC0_bit=1;}
+    
     
     //Validación para temperatura alta y temperaturaa normal
     if (temperatura > 35) {
@@ -91,10 +95,13 @@ void main() {
     Pollo_Kg= RD0_bit+RD1_bit+RD2_bit+RD3_bit+RD4_bit;
     Leche_Total = RA3_bit+RA4_bit+RA5_bit+RA6_bit+RA7_bit;
     
-    
-    //Validación para cuando algun producto se ha acabado
-    if((Carne_Kg == 0)||( Pollo_Kg == 0)||(Leche_Total == 0)){
-    UART1_Write("0");}
+    if ((Carne_Kg==0)||(Pollo_Kg==0)||(Leche_Total==0)){
+     transmision("ATD0991255666;\r");
+     Delay_ms(15000);
+     transmision("ATH\r");
+     }
+     
+     
     
     //Salida en LCD
     ByteToStr(Carne_Kg,txt);

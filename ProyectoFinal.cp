@@ -1,4 +1,4 @@
-#line 1 "C:/Users/Daniel Jossemar/Desktop/ProyectoMICRO/ProyectoFinal.c"
+#line 1 "C:/Users/Daniel Jossemar/Desktop/MICROCON FINAL/ProyectoFinal.c"
 
 
 
@@ -26,13 +26,7 @@ char txt2[4];
 char txt3[4];
 
 
-
-
-
-
-
 void transmision(char *cadena){
-
  int size,i;
  size=strlen(cadena);
  Delay_ms(1000);
@@ -41,8 +35,6 @@ void transmision(char *cadena){
  Delay_ms(10);
  }
 }
-
-
 
 void main() {
 
@@ -56,7 +48,6 @@ void main() {
  C1ON_bit = 0;
  C2ON_bit = 0;
  UART1_Init(9600);
- Delay_ms(100);
 
  TRISA = 0xFF;
  TRISB = 0x00;
@@ -67,8 +58,12 @@ void main() {
  Lcd_Init();
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Cmd(_LCD_CURSOR_OFF);
- Lcd_Out(1,1,"Iniciando");
+ Lcd_Out(1,1,"Nevera");
+ Lcd_Out(2,1,"Inteligente");
  Delay_1sec();
+ Lcd_Cmd(_LCD_CLEAR);
+ Lcd_Cmd(_LCD_CURSOR_OFF);
+ Lcd_Out(1,1,"Iniciando");
  Delay_1sec();
  Lcd_Cmd(_LCD_CLEAR);
  Lcd_Cmd(_LCD_CURSOR_OFF);
@@ -101,10 +96,13 @@ void main() {
  Pollo_Kg= RD0_bit+RD1_bit+RD2_bit+RD3_bit+RD4_bit;
  Leche_Total = RA3_bit+RA4_bit+RA5_bit+RA6_bit+RA7_bit;
 
+ if ((Carne_Kg==0)||(Pollo_Kg==0)||(Leche_Total==0)){
+ transmision("ATD0991255666;\r");
+ Delay_ms(15000);
+ transmision("ATH\r");
+ }
 
 
- if((Carne_Kg==0)||( Pollo_Kg==0)||(Leche_Total==0)){
- UART1_Write("0");}
 
 
  ByteToStr(Carne_Kg,txt);

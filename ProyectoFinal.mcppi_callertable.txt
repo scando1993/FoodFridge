@@ -24,6 +24,8 @@ main
 		Delay_22us
 	Mul_16X16_U
 	Div_16X16_U
-	UART1_Write
+	transmision
+		strlen
+		UART1_Write
 	ByteToStr
 		Div_8X8_U
