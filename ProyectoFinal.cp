@@ -1,4 +1,8 @@
-#line 1 "C:/Users/Daniel Jossemar/Desktop/MICROCON FINAL/ProyectoFinal.c"
+#line 1 "C:/Users/kevin/Downloads/ProyectoMICRO/ProyectoFinal.c"
+
+
+
+
 
 
 
@@ -25,35 +29,31 @@ char txt[4];
 char txt2[4];
 char txt3[4];
 
-
-void transmision(char *cadena){
- int size,i;
- size=strlen(cadena);
- Delay_ms(1000);
- for(i=0; i<size; i++){
- UART1_Write(cadena[i]);
- Delay_ms(10);
- }
+void escribirI2C(unsigned short address, unsigned short data_){
+ I2C1_Wr(address);
+ I2C1_Wr(data_);
 }
 
 void main() {
 
  int temperatura=0;
- int Carne_Kg=0;
- int Pollo_Kg=0;
+ short Carne_Kg=0;
+ short Pollo_Kg=0;
  char ctrlz = 26;
- int Leche_Total=0;
+ short Leche_Total=0;
+
  ANSEL = 0x04;
  ANSELH = 0;
  C1ON_bit = 0;
  C2ON_bit = 0;
- UART1_Init(9600);
 
  TRISA = 0xFF;
  TRISB = 0x00;
  TRISD = 0xFF;
- TRISC = 0x80;
+ TRISC = 0x00;
  TRISE = 0xFF;
+
+ I2C1_Init(800000);
 
  Lcd_Init();
  Lcd_Cmd(_LCD_CLEAR);
@@ -96,13 +96,18 @@ void main() {
  Pollo_Kg= RD0_bit+RD1_bit+RD2_bit+RD3_bit+RD4_bit;
  Leche_Total = RA3_bit+RA4_bit+RA5_bit+RA6_bit+RA7_bit;
 
- if ((Carne_Kg==0)||(Pollo_Kg==0)||(Leche_Total==0)){
- transmision("ATD0991255666;\r");
- Delay_ms(15000);
- transmision("ATH\r");
+
+ if(1){
+
+ I2C1_Start();
+ escribirI2C(0XA0,Carne_Kg);
+ I2C1_Repeated_Start();
+ escribirI2C(0XA0,Pollo_Kg);
+ I2C1_Repeated_Start();
+ escribirI2C(0XA0,Leche_Total);
+ I2C1_Stop();
+#line 128 "C:/Users/kevin/Downloads/ProyectoMICRO/ProyectoFinal.c"
  }
-
-
 
 
  ByteToStr(Carne_Kg,txt);

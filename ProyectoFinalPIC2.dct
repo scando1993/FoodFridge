@@ -411,7 +411,6 @@ ckp_bit
 cm1con0
 cm2con0
 cm2con1
-cnt
 comfrem
 compare_double
 cos
@@ -577,6 +576,7 @@ go_not_done_bit
 halfbits
 hts
 hts_bit
+i
 i2c_data
 i2c_data_bit
 i2c_read
@@ -595,6 +595,7 @@ i2c1_wr
 ics_auto
 ics_off
 indf
+init
 int2double
 intcon
 inte
@@ -644,27 +645,13 @@ isxdigit
 keypad_init
 keypad_key_click
 keypad_key_press
-keypadport
-kp
 labs
 lcd_chr
 lcd_chr_cp
 lcd_cmd
-lcd_d4
-lcd_d4_direction
-lcd_d5
-lcd_d5_direction
-lcd_d6
-lcd_d6_direction
-lcd_d7
-lcd_d7_direction
-lcd_en
-lcd_en_direction
 lcd_init
 lcd_out
 lcd_out_cp
-lcd_rs
-lcd_rs_direction
 ldexp
 ldiv
 log
@@ -767,7 +754,6 @@ nrm3232
 nrm4032
 oerr
 oerr_bit
-oldstate
 option_reg
 osccon
 osctune
@@ -1445,6 +1431,7 @@ tp_init
 tp_press_detect
 tp_set_adc_threshold
 tp_set_calibration_consts
+transmision
 trisa
 trisa0
 trisa0_bit
@@ -1550,7 +1537,6 @@ txif
 txif_bit
 txreg
 txsta
-txt
 ua
 ua_bit
 uart1_data_ready

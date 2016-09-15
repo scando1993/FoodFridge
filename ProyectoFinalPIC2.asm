@@ -1,228 +1,541 @@
 
+_init:
+
+;ProyectoFinalPIC2.c,2 :: 		void init(){
+;ProyectoFinalPIC2.c,3 :: 		ANSEL  = 0;         // Configure AN pins as digital
+	CLRF       ANSEL+0
+;ProyectoFinalPIC2.c,4 :: 		ANSELH = 0;
+	CLRF       ANSELH+0
+;ProyectoFinalPIC2.c,5 :: 		UART1_Init(9600);   // Initialize USART module
+	MOVLW      51
+	MOVWF      SPBRG+0
+	BSF        TXSTA+0, 2
+	CALL       _UART1_Init+0
+;ProyectoFinalPIC2.c,8 :: 		I2C1_Init(8000000);
+	CLRF       SSPADD+0
+	CALL       _I2C1_Init+0
+;ProyectoFinalPIC2.c,9 :: 		PORTA = 255;
+	MOVLW      255
+	MOVWF      PORTA+0
+;ProyectoFinalPIC2.c,10 :: 		TRISA = 255;        //Utiliza PORTA como entrada
+	MOVLW      255
+	MOVWF      TRISA+0
+;ProyectoFinalPIC2.c,11 :: 		TRISB=0;            //Utiliza PORTB como salida
+	CLRF       TRISB+0
+;ProyectoFinalPIC2.c,12 :: 		PORTB=0;
+	CLRF       PORTB+0
+;ProyectoFinalPIC2.c,16 :: 		}
+L_end_init:
+	RETURN
+; end of _init
+
+_transmision:
+
+;ProyectoFinalPIC2.c,17 :: 		void transmision(unsigned short size_cadena){ //Funcion que permite enviar cadenas de caracteres de cualquier tamaño vía UART
+;ProyectoFinalPIC2.c,21 :: 		Delay_ms(500);
+	MOVLW      6
+	MOVWF      R11+0
+	MOVLW      19
+	MOVWF      R12+0
+	MOVLW      173
+	MOVWF      R13+0
+L_transmision0:
+	DECFSZ     R13+0, 1
+	GOTO       L_transmision0
+	DECFSZ     R12+0, 1
+	GOTO       L_transmision0
+	DECFSZ     R11+0, 1
+	GOTO       L_transmision0
+	NOP
+	NOP
+;ProyectoFinalPIC2.c,22 :: 		for(i=0; i < size_cadena; i++){
+	CLRF       transmision_i_L0+0
+L_transmision1:
+	MOVF       FARG_transmision_size_cadena+0, 0
+	SUBWF      transmision_i_L0+0, 0
+	BTFSC      STATUS+0, 0
+	GOTO       L_transmision2
+;ProyectoFinalPIC2.c,23 :: 		valor = EEPROM_Read(0x00+i);
+	MOVF       transmision_i_L0+0, 0
+	MOVWF      FARG_EEPROM_Read_Address+0
+	CALL       _EEPROM_Read+0
+;ProyectoFinalPIC2.c,24 :: 		UART1_Write(valor);
+	MOVF       R0+0, 0
+	MOVWF      FARG_UART1_Write_data_+0
+	CALL       _UART1_Write+0
+;ProyectoFinalPIC2.c,22 :: 		for(i=0; i < size_cadena; i++){
+	INCF       transmision_i_L0+0, 1
+;ProyectoFinalPIC2.c,26 :: 		}
+	GOTO       L_transmision1
+L_transmision2:
+;ProyectoFinalPIC2.c,27 :: 		}
+L_end_transmision:
+	RETURN
+; end of _transmision
+
 _main:
 
-;ProyectoFinalPIC2.c,24 :: 		void main() {
-;ProyectoFinalPIC2.c,25 :: 		cnt = 0;                                 // Reset counter
-	CLRF       _cnt+0
-;ProyectoFinalPIC2.c,26 :: 		Keypad_Init();                           // Initialize Keypad
-	CALL       _Keypad_Init+0
-;ProyectoFinalPIC2.c,27 :: 		ANSEL  = 0;                              // Configure AN pins as digital I/O
-	CLRF       ANSEL+0
-;ProyectoFinalPIC2.c,28 :: 		ANSELH = 0;
-	CLRF       ANSELH+0
-;ProyectoFinalPIC2.c,29 :: 		Lcd_Init();                              // Initialize LCD
-	CALL       _Lcd_Init+0
-;ProyectoFinalPIC2.c,30 :: 		Lcd_Cmd(_LCD_CLEAR);                     // Clear display
-	MOVLW      1
-	MOVWF      FARG_Lcd_Cmd_out_char+0
-	CALL       _Lcd_Cmd+0
-;ProyectoFinalPIC2.c,31 :: 		Lcd_Cmd(_LCD_CURSOR_OFF);                // Cursor off
-	MOVLW      12
-	MOVWF      FARG_Lcd_Cmd_out_char+0
-	CALL       _Lcd_Cmd+0
-;ProyectoFinalPIC2.c,32 :: 		Lcd_Out(1, 1, "Iniciando");                 // Write message text on LCD
-	MOVLW      1
-	MOVWF      FARG_Lcd_Out_row+0
-	MOVLW      1
-	MOVWF      FARG_Lcd_Out_column+0
-	MOVLW      ?lstr1_ProyectoFinalPIC2+0
-	MOVWF      FARG_Lcd_Out_text+0
-	CALL       _Lcd_Out+0
-;ProyectoFinalPIC2.c,33 :: 		Delay_1sec();
-	CALL       _Delay_1sec+0
-;ProyectoFinalPIC2.c,34 :: 		Delay_1sec();
-	CALL       _Delay_1sec+0
-;ProyectoFinalPIC2.c,35 :: 		Lcd_Cmd(_LCD_CLEAR);                     // Clear display
-	MOVLW      1
-	MOVWF      FARG_Lcd_Cmd_out_char+0
-	CALL       _Lcd_Cmd+0
-;ProyectoFinalPIC2.c,36 :: 		Lcd_Out(1, 1, "Proceso");
-	MOVLW      1
-	MOVWF      FARG_Lcd_Out_row+0
-	MOVLW      1
-	MOVWF      FARG_Lcd_Out_column+0
-	MOVLW      ?lstr2_ProyectoFinalPIC2+0
-	MOVWF      FARG_Lcd_Out_text+0
-	CALL       _Lcd_Out+0
-;ProyectoFinalPIC2.c,38 :: 		do {
-L_main0:
-;ProyectoFinalPIC2.c,39 :: 		kp = 0;                                // Reset key code variable
-	CLRF       _kp+0
-;ProyectoFinalPIC2.c,42 :: 		do
-L_main3:
-;ProyectoFinalPIC2.c,44 :: 		kp = Keypad_Key_Click();             // Store key code in kp variable
-	CALL       _Keypad_Key_Click+0
+;ProyectoFinalPIC2.c,29 :: 		void main() {
+;ProyectoFinalPIC2.c,33 :: 		char ctrlz=26;    //Caracter ascii de la tecla Control+Z
+;ProyectoFinalPIC2.c,34 :: 		int size=0;
+	CLRF       main_size_L0+0
+	CLRF       main_size_L0+1
+	CLRF       main_i_L0+0
+	CLRF       main_pollo_L0+0
+	CLRF       main_leche_L0+0
+	CLRF       main_elemento_L0+0
+;ProyectoFinalPIC2.c,44 :: 		init();
+	CALL       _init+0
+;ProyectoFinalPIC2.c,45 :: 		memset(buffer1,'\0',strlen(buffer1)); // Borra el contenido de buffer1
+	MOVLW      main_buffer1_L0+0
+	MOVWF      FARG_strlen_s+0
+	CALL       _strlen+0
 	MOVF       R0+0, 0
-	MOVWF      _kp+0
-;ProyectoFinalPIC2.c,45 :: 		while (!kp);
+	MOVWF      FARG_memset_n+0
+	MOVF       R0+1, 0
+	MOVWF      FARG_memset_n+1
+	MOVLW      main_buffer1_L0+0
+	MOVWF      FARG_memset_p1+0
+	CLRF       FARG_memset_character+0
+	CALL       _memset+0
+;ProyectoFinalPIC2.c,46 :: 		while (1) {
+L_main4:
+;ProyectoFinalPIC2.c,48 :: 		if(!I2C1_Is_Idle()){
+	CALL       _I2C1_Is_Idle+0
 	MOVF       R0+0, 0
-	BTFSC      STATUS+0, 2
-	GOTO       L_main3
-;ProyectoFinalPIC2.c,47 :: 		switch (kp) {
+	BTFSS      STATUS+0, 2
 	GOTO       L_main6
-;ProyectoFinalPIC2.c,49 :: 		case  1: kp = 49; break; // 1
-L_main8:
-	MOVLW      49
-	MOVWF      _kp+0
+;ProyectoFinalPIC2.c,49 :: 		elemento = I2C1_Rd(0);
+	CLRF       FARG_I2C1_Rd_ack+0
+	CALL       _I2C1_Rd+0
+	MOVF       R0+0, 0
+	MOVWF      main_elemento_L0+0
+;ProyectoFinalPIC2.c,50 :: 		switch(elemento){
 	GOTO       L_main7
-;ProyectoFinalPIC2.c,50 :: 		case  2: kp = 50; break; // 2
+;ProyectoFinalPIC2.c,51 :: 		case 0:{
 L_main9:
-	MOVLW      50
-	MOVWF      _kp+0
-	GOTO       L_main7
-;ProyectoFinalPIC2.c,51 :: 		case  3: kp = 51; break; // 3
-L_main10:
-	MOVLW      51
-	MOVWF      _kp+0
-	GOTO       L_main7
-;ProyectoFinalPIC2.c,52 :: 		case  5: kp = 52; break; // 4
-L_main11:
-	MOVLW      52
-	MOVWF      _kp+0
-	GOTO       L_main7
-;ProyectoFinalPIC2.c,53 :: 		case  6: kp = 53; break; // 5
-L_main12:
-	MOVLW      53
-	MOVWF      _kp+0
-	GOTO       L_main7
-;ProyectoFinalPIC2.c,54 :: 		case  7: kp = 54; break; // 6
-L_main13:
-	MOVLW      54
-	MOVWF      _kp+0
-	GOTO       L_main7
-;ProyectoFinalPIC2.c,55 :: 		case  9: kp = 55; break; // 7
-L_main14:
-	MOVLW      55
-	MOVWF      _kp+0
-	GOTO       L_main7
-;ProyectoFinalPIC2.c,56 :: 		case 10: kp = 56; break; // 8
-L_main15:
-	MOVLW      56
-	MOVWF      _kp+0
-	GOTO       L_main7
-;ProyectoFinalPIC2.c,57 :: 		case 11: kp = 57; break; // 9
-L_main16:
-	MOVLW      57
-	MOVWF      _kp+0
-	GOTO       L_main7
-;ProyectoFinalPIC2.c,58 :: 		case 14: kp = 48; break; // 0
-L_main17:
-	MOVLW      48
-	MOVWF      _kp+0
-	GOTO       L_main7
-;ProyectoFinalPIC2.c,59 :: 		case 15: kp = 35; break; // #
-L_main18:
-	MOVLW      35
-	MOVWF      _kp+0
-	GOTO       L_main7
-;ProyectoFinalPIC2.c,61 :: 		}
-L_main6:
-	MOVF       _kp+0, 0
+;ProyectoFinalPIC2.c,52 :: 		pollo = I2C1_Rd(0);
+	CLRF       FARG_I2C1_Rd_ack+0
+	CALL       _I2C1_Rd+0
+	MOVF       R0+0, 0
+	MOVWF      main_pollo_L0+0
+;ProyectoFinalPIC2.c,53 :: 		numero = "AT+CMGS=\"0985312079\"\r";
+	MOVLW      ?lstr1_ProyectoFinalPIC2+0
+	MOVWF      main_numero_L0+0
+;ProyectoFinalPIC2.c,54 :: 		size = strlen(numero);
+	MOVF       main_numero_L0+0, 0
+	MOVWF      FARG_strlen_s+0
+	CALL       _strlen+0
+	MOVF       R0+0, 0
+	MOVWF      main_size_L0+0
+	MOVF       R0+1, 0
+	MOVWF      main_size_L0+1
+;ProyectoFinalPIC2.c,55 :: 		if(size <= 256){
+	MOVLW      128
 	XORLW      1
-	BTFSC      STATUS+0, 2
+	MOVWF      R2+0
+	MOVLW      128
+	XORWF      R0+1, 0
+	SUBWF      R2+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main39
+	MOVF       R0+0, 0
+	SUBLW      0
+L__main39:
+	BTFSS      STATUS+0, 0
+	GOTO       L_main10
+;ProyectoFinalPIC2.c,56 :: 		for(i = 0; i < size; i++){
+	CLRF       main_i_L0+0
+L_main11:
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      main_size_L0+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main40
+	MOVF       main_size_L0+0, 0
+	SUBWF      main_i_L0+0, 0
+L__main40:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main12
+;ProyectoFinalPIC2.c,57 :: 		EEPROM_Write(0x00+i,numero[i]);
+	MOVF       main_i_L0+0, 0
+	MOVWF      FARG_EEPROM_Write_Address+0
+	MOVF       main_i_L0+0, 0
+	ADDWF      main_numero_L0+0, 0
+	MOVWF      FSR
+	MOVF       INDF+0, 0
+	MOVWF      FARG_EEPROM_Write_data_+0
+	CALL       _EEPROM_Write+0
+;ProyectoFinalPIC2.c,56 :: 		for(i = 0; i < size; i++){
+	INCF       main_i_L0+0, 1
+;ProyectoFinalPIC2.c,58 :: 		}
+	GOTO       L_main11
+L_main12:
+;ProyectoFinalPIC2.c,59 :: 		transmision(size);
+	MOVF       main_size_L0+0, 0
+	MOVWF      FARG_transmision_size_cadena+0
+	CALL       _transmision+0
+;ProyectoFinalPIC2.c,60 :: 		}
+L_main10:
+;ProyectoFinalPIC2.c,61 :: 		sprinti(buffer1,"Se tiene las siguientes cantidades de pollo:%d//5",pollo);
+	MOVLW      main_buffer1_L0+0
+	MOVWF      FARG_sprinti_wh+0
+	MOVLW      ?lstr_2_ProyectoFinalPIC2+0
+	MOVWF      FARG_sprinti_f+0
+	MOVLW      hi_addr(?lstr_2_ProyectoFinalPIC2+0)
+	MOVWF      FARG_sprinti_f+1
+	MOVF       main_pollo_L0+0, 0
+	MOVWF      FARG_sprinti_wh+3
+	CALL       _sprinti+0
+;ProyectoFinalPIC2.c,62 :: 		size = strlen(numero);
+	MOVF       main_numero_L0+0, 0
+	MOVWF      FARG_strlen_s+0
+	CALL       _strlen+0
+	MOVF       R0+0, 0
+	MOVWF      main_size_L0+0
+	MOVF       R0+1, 0
+	MOVWF      main_size_L0+1
+;ProyectoFinalPIC2.c,63 :: 		if(size <= 256){
+	MOVLW      128
+	XORLW      1
+	MOVWF      R2+0
+	MOVLW      128
+	XORWF      R0+1, 0
+	SUBWF      R2+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main41
+	MOVF       R0+0, 0
+	SUBLW      0
+L__main41:
+	BTFSS      STATUS+0, 0
+	GOTO       L_main14
+;ProyectoFinalPIC2.c,64 :: 		for(i = 0; i < size; i++){
+	CLRF       main_i_L0+0
+L_main15:
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      main_size_L0+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main42
+	MOVF       main_size_L0+0, 0
+	SUBWF      main_i_L0+0, 0
+L__main42:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main16
+;ProyectoFinalPIC2.c,65 :: 		EEPROM_Write(0x00+i,numero[i]);
+	MOVF       main_i_L0+0, 0
+	MOVWF      FARG_EEPROM_Write_Address+0
+	MOVF       main_i_L0+0, 0
+	ADDWF      main_numero_L0+0, 0
+	MOVWF      FSR
+	MOVF       INDF+0, 0
+	MOVWF      FARG_EEPROM_Write_data_+0
+	CALL       _EEPROM_Write+0
+;ProyectoFinalPIC2.c,64 :: 		for(i = 0; i < size; i++){
+	INCF       main_i_L0+0, 1
+;ProyectoFinalPIC2.c,66 :: 		}
+	GOTO       L_main15
+L_main16:
+;ProyectoFinalPIC2.c,67 :: 		transmision(size);
+	MOVF       main_size_L0+0, 0
+	MOVWF      FARG_transmision_size_cadena+0
+	CALL       _transmision+0
+;ProyectoFinalPIC2.c,68 :: 		}
+L_main14:
+;ProyectoFinalPIC2.c,69 :: 		}break;
 	GOTO       L_main8
-	MOVF       _kp+0, 0
-	XORLW      2
+;ProyectoFinalPIC2.c,70 :: 		case 1:{
+L_main18:
+;ProyectoFinalPIC2.c,71 :: 		leche = I2C1_Rd(0);
+	CLRF       FARG_I2C1_Rd_ack+0
+	CALL       _I2C1_Rd+0
+	MOVF       R0+0, 0
+	MOVWF      main_leche_L0+0
+;ProyectoFinalPIC2.c,72 :: 		numero = "AT+CMGS=\"0985312079\"\r";
+	MOVLW      ?lstr3_ProyectoFinalPIC2+0
+	MOVWF      main_numero_L0+0
+;ProyectoFinalPIC2.c,73 :: 		size = strlen(numero);
+	MOVF       main_numero_L0+0, 0
+	MOVWF      FARG_strlen_s+0
+	CALL       _strlen+0
+	MOVF       R0+0, 0
+	MOVWF      main_size_L0+0
+	MOVF       R0+1, 0
+	MOVWF      main_size_L0+1
+;ProyectoFinalPIC2.c,74 :: 		if(size <= 256){
+	MOVLW      128
+	XORLW      1
+	MOVWF      R2+0
+	MOVLW      128
+	XORWF      R0+1, 0
+	SUBWF      R2+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main43
+	MOVF       R0+0, 0
+	SUBLW      0
+L__main43:
+	BTFSS      STATUS+0, 0
+	GOTO       L_main19
+;ProyectoFinalPIC2.c,75 :: 		for(i = 0; i < size; i++){
+	CLRF       main_i_L0+0
+L_main20:
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      main_size_L0+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main44
+	MOVF       main_size_L0+0, 0
+	SUBWF      main_i_L0+0, 0
+L__main44:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main21
+;ProyectoFinalPIC2.c,76 :: 		EEPROM_Write(0x00+i,numero[i]);
+	MOVF       main_i_L0+0, 0
+	MOVWF      FARG_EEPROM_Write_Address+0
+	MOVF       main_i_L0+0, 0
+	ADDWF      main_numero_L0+0, 0
+	MOVWF      FSR
+	MOVF       INDF+0, 0
+	MOVWF      FARG_EEPROM_Write_data_+0
+	CALL       _EEPROM_Write+0
+;ProyectoFinalPIC2.c,75 :: 		for(i = 0; i < size; i++){
+	INCF       main_i_L0+0, 1
+;ProyectoFinalPIC2.c,77 :: 		}
+	GOTO       L_main20
+L_main21:
+;ProyectoFinalPIC2.c,78 :: 		transmision(size);
+	MOVF       main_size_L0+0, 0
+	MOVWF      FARG_transmision_size_cadena+0
+	CALL       _transmision+0
+;ProyectoFinalPIC2.c,79 :: 		}
+L_main19:
+;ProyectoFinalPIC2.c,80 :: 		sprinti(buffer1,"Se tiene las siguientes cantidades de leche:%d//5", leche);
+	MOVLW      main_buffer1_L0+0
+	MOVWF      FARG_sprinti_wh+0
+	MOVLW      ?lstr_4_ProyectoFinalPIC2+0
+	MOVWF      FARG_sprinti_f+0
+	MOVLW      hi_addr(?lstr_4_ProyectoFinalPIC2+0)
+	MOVWF      FARG_sprinti_f+1
+	MOVF       main_leche_L0+0, 0
+	MOVWF      FARG_sprinti_wh+3
+	CALL       _sprinti+0
+;ProyectoFinalPIC2.c,81 :: 		size = strlen(numero);
+	MOVF       main_numero_L0+0, 0
+	MOVWF      FARG_strlen_s+0
+	CALL       _strlen+0
+	MOVF       R0+0, 0
+	MOVWF      main_size_L0+0
+	MOVF       R0+1, 0
+	MOVWF      main_size_L0+1
+;ProyectoFinalPIC2.c,82 :: 		if(size <= 256){
+	MOVLW      128
+	XORLW      1
+	MOVWF      R2+0
+	MOVLW      128
+	XORWF      R0+1, 0
+	SUBWF      R2+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main45
+	MOVF       R0+0, 0
+	SUBLW      0
+L__main45:
+	BTFSS      STATUS+0, 0
+	GOTO       L_main23
+;ProyectoFinalPIC2.c,83 :: 		for(i = 0; i < size; i++){
+	CLRF       main_i_L0+0
+L_main24:
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      main_size_L0+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main46
+	MOVF       main_size_L0+0, 0
+	SUBWF      main_i_L0+0, 0
+L__main46:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main25
+;ProyectoFinalPIC2.c,84 :: 		EEPROM_Write(0x00+i,numero[i]);
+	MOVF       main_i_L0+0, 0
+	MOVWF      FARG_EEPROM_Write_Address+0
+	MOVF       main_i_L0+0, 0
+	ADDWF      main_numero_L0+0, 0
+	MOVWF      FSR
+	MOVF       INDF+0, 0
+	MOVWF      FARG_EEPROM_Write_data_+0
+	CALL       _EEPROM_Write+0
+;ProyectoFinalPIC2.c,83 :: 		for(i = 0; i < size; i++){
+	INCF       main_i_L0+0, 1
+;ProyectoFinalPIC2.c,85 :: 		}
+	GOTO       L_main24
+L_main25:
+;ProyectoFinalPIC2.c,86 :: 		transmision(size);
+	MOVF       main_size_L0+0, 0
+	MOVWF      FARG_transmision_size_cadena+0
+	CALL       _transmision+0
+;ProyectoFinalPIC2.c,87 :: 		}
+L_main23:
+;ProyectoFinalPIC2.c,88 :: 		}break;
+	GOTO       L_main8
+;ProyectoFinalPIC2.c,89 :: 		case 2:{
+L_main27:
+;ProyectoFinalPIC2.c,90 :: 		carne = I2C1_Rd(0);
+	CLRF       FARG_I2C1_Rd_ack+0
+	CALL       _I2C1_Rd+0
+;ProyectoFinalPIC2.c,91 :: 		numero = "AT+CMGS=\"0985312079\"\r";
+	MOVLW      ?lstr5_ProyectoFinalPIC2+0
+	MOVWF      main_numero_L0+0
+;ProyectoFinalPIC2.c,92 :: 		size = strlen(numero);
+	MOVF       main_numero_L0+0, 0
+	MOVWF      FARG_strlen_s+0
+	CALL       _strlen+0
+	MOVF       R0+0, 0
+	MOVWF      main_size_L0+0
+	MOVF       R0+1, 0
+	MOVWF      main_size_L0+1
+;ProyectoFinalPIC2.c,93 :: 		if(size <= 256){
+	MOVLW      128
+	XORLW      1
+	MOVWF      R2+0
+	MOVLW      128
+	XORWF      R0+1, 0
+	SUBWF      R2+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main47
+	MOVF       R0+0, 0
+	SUBLW      0
+L__main47:
+	BTFSS      STATUS+0, 0
+	GOTO       L_main28
+;ProyectoFinalPIC2.c,94 :: 		for(i = 0; i < size; i++){
+	CLRF       main_i_L0+0
+L_main29:
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      main_size_L0+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main48
+	MOVF       main_size_L0+0, 0
+	SUBWF      main_i_L0+0, 0
+L__main48:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main30
+;ProyectoFinalPIC2.c,95 :: 		EEPROM_Write(0x00+i,numero[i]);
+	MOVF       main_i_L0+0, 0
+	MOVWF      FARG_EEPROM_Write_Address+0
+	MOVF       main_i_L0+0, 0
+	ADDWF      main_numero_L0+0, 0
+	MOVWF      FSR
+	MOVF       INDF+0, 0
+	MOVWF      FARG_EEPROM_Write_data_+0
+	CALL       _EEPROM_Write+0
+;ProyectoFinalPIC2.c,94 :: 		for(i = 0; i < size; i++){
+	INCF       main_i_L0+0, 1
+;ProyectoFinalPIC2.c,96 :: 		}
+	GOTO       L_main29
+L_main30:
+;ProyectoFinalPIC2.c,97 :: 		transmision(size);
+	MOVF       main_size_L0+0, 0
+	MOVWF      FARG_transmision_size_cadena+0
+	CALL       _transmision+0
+;ProyectoFinalPIC2.c,98 :: 		}
+L_main28:
+;ProyectoFinalPIC2.c,99 :: 		sprinti(buffer1,"Se tiene las siguientes cantidades de carne:%d//5");
+	MOVLW      main_buffer1_L0+0
+	MOVWF      FARG_sprinti_wh+0
+	MOVLW      ?lstr_6_ProyectoFinalPIC2+0
+	MOVWF      FARG_sprinti_f+0
+	MOVLW      hi_addr(?lstr_6_ProyectoFinalPIC2+0)
+	MOVWF      FARG_sprinti_f+1
+	CALL       _sprinti+0
+;ProyectoFinalPIC2.c,100 :: 		size = strlen(numero);
+	MOVF       main_numero_L0+0, 0
+	MOVWF      FARG_strlen_s+0
+	CALL       _strlen+0
+	MOVF       R0+0, 0
+	MOVWF      main_size_L0+0
+	MOVF       R0+1, 0
+	MOVWF      main_size_L0+1
+;ProyectoFinalPIC2.c,101 :: 		if(size <= 256){
+	MOVLW      128
+	XORLW      1
+	MOVWF      R2+0
+	MOVLW      128
+	XORWF      R0+1, 0
+	SUBWF      R2+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main49
+	MOVF       R0+0, 0
+	SUBLW      0
+L__main49:
+	BTFSS      STATUS+0, 0
+	GOTO       L_main32
+;ProyectoFinalPIC2.c,102 :: 		for(i = 0; i < size; i++){
+	CLRF       main_i_L0+0
+L_main33:
+	MOVLW      128
+	MOVWF      R0+0
+	MOVLW      128
+	XORWF      main_size_L0+1, 0
+	SUBWF      R0+0, 0
+	BTFSS      STATUS+0, 2
+	GOTO       L__main50
+	MOVF       main_size_L0+0, 0
+	SUBWF      main_i_L0+0, 0
+L__main50:
+	BTFSC      STATUS+0, 0
+	GOTO       L_main34
+;ProyectoFinalPIC2.c,103 :: 		EEPROM_Write(0x00+i,numero[i]);
+	MOVF       main_i_L0+0, 0
+	MOVWF      FARG_EEPROM_Write_Address+0
+	MOVF       main_i_L0+0, 0
+	ADDWF      main_numero_L0+0, 0
+	MOVWF      FSR
+	MOVF       INDF+0, 0
+	MOVWF      FARG_EEPROM_Write_data_+0
+	CALL       _EEPROM_Write+0
+;ProyectoFinalPIC2.c,102 :: 		for(i = 0; i < size; i++){
+	INCF       main_i_L0+0, 1
+;ProyectoFinalPIC2.c,104 :: 		}
+	GOTO       L_main33
+L_main34:
+;ProyectoFinalPIC2.c,105 :: 		transmision(size);
+	MOVF       main_size_L0+0, 0
+	MOVWF      FARG_transmision_size_cadena+0
+	CALL       _transmision+0
+;ProyectoFinalPIC2.c,106 :: 		}
+L_main32:
+;ProyectoFinalPIC2.c,107 :: 		}break;
+	GOTO       L_main8
+;ProyectoFinalPIC2.c,108 :: 		}
+L_main7:
+	MOVF       main_elemento_L0+0, 0
+	XORLW      0
 	BTFSC      STATUS+0, 2
 	GOTO       L_main9
-	MOVF       _kp+0, 0
-	XORLW      3
-	BTFSC      STATUS+0, 2
-	GOTO       L_main10
-	MOVF       _kp+0, 0
-	XORLW      5
-	BTFSC      STATUS+0, 2
-	GOTO       L_main11
-	MOVF       _kp+0, 0
-	XORLW      6
-	BTFSC      STATUS+0, 2
-	GOTO       L_main12
-	MOVF       _kp+0, 0
-	XORLW      7
-	BTFSC      STATUS+0, 2
-	GOTO       L_main13
-	MOVF       _kp+0, 0
-	XORLW      9
-	BTFSC      STATUS+0, 2
-	GOTO       L_main14
-	MOVF       _kp+0, 0
-	XORLW      10
-	BTFSC      STATUS+0, 2
-	GOTO       L_main15
-	MOVF       _kp+0, 0
-	XORLW      11
-	BTFSC      STATUS+0, 2
-	GOTO       L_main16
-	MOVF       _kp+0, 0
-	XORLW      14
-	BTFSC      STATUS+0, 2
-	GOTO       L_main17
-	MOVF       _kp+0, 0
-	XORLW      15
+	MOVF       main_elemento_L0+0, 0
+	XORLW      1
 	BTFSC      STATUS+0, 2
 	GOTO       L_main18
-L_main7:
-;ProyectoFinalPIC2.c,63 :: 		if (kp != oldstate) {                  // Pressed key differs from previous
-	MOVF       _kp+0, 0
-	XORWF      _oldstate+0, 0
+	MOVF       main_elemento_L0+0, 0
+	XORLW      2
 	BTFSC      STATUS+0, 2
-	GOTO       L_main19
-;ProyectoFinalPIC2.c,64 :: 		cnt = 1;
-	MOVLW      1
-	MOVWF      _cnt+0
-;ProyectoFinalPIC2.c,65 :: 		oldstate = kp;
-	MOVF       _kp+0, 0
-	MOVWF      _oldstate+0
-;ProyectoFinalPIC2.c,66 :: 		}
-	GOTO       L_main20
-L_main19:
-;ProyectoFinalPIC2.c,68 :: 		cnt++;
-	INCF       _cnt+0, 1
-;ProyectoFinalPIC2.c,69 :: 		}
-L_main20:
-;ProyectoFinalPIC2.c,71 :: 		Lcd_Chr(1, 10, kp);                    // Print key ASCII value on LCD
-	MOVLW      1
-	MOVWF      FARG_Lcd_Chr_row+0
-	MOVLW      10
-	MOVWF      FARG_Lcd_Chr_column+0
-	MOVF       _kp+0, 0
-	MOVWF      FARG_Lcd_Chr_out_char+0
-	CALL       _Lcd_Chr+0
-;ProyectoFinalPIC2.c,73 :: 		if (cnt == 255) {                      // If counter varialble overflow
-	MOVF       _cnt+0, 0
-	XORLW      255
-	BTFSS      STATUS+0, 2
-	GOTO       L_main21
-;ProyectoFinalPIC2.c,74 :: 		cnt = 0;
-	CLRF       _cnt+0
-;ProyectoFinalPIC2.c,75 :: 		Lcd_Out(2, 10, "   ");
-	MOVLW      2
-	MOVWF      FARG_Lcd_Out_row+0
-	MOVLW      10
-	MOVWF      FARG_Lcd_Out_column+0
-	MOVLW      ?lstr3_ProyectoFinalPIC2+0
-	MOVWF      FARG_Lcd_Out_text+0
-	CALL       _Lcd_Out+0
-;ProyectoFinalPIC2.c,76 :: 		}
-L_main21:
-;ProyectoFinalPIC2.c,78 :: 		WordToStr(cnt, txt);                   // Transform counter value to string
-	MOVF       _cnt+0, 0
-	MOVWF      FARG_WordToStr_input+0
-	CLRF       FARG_WordToStr_input+1
-	MOVLW      _txt+0
-	MOVWF      FARG_WordToStr_output+0
-	CALL       _WordToStr+0
-;ProyectoFinalPIC2.c,79 :: 		Lcd_Out(2, 10, txt);                   // Display counter value on LCD
-	MOVLW      2
-	MOVWF      FARG_Lcd_Out_row+0
-	MOVLW      10
-	MOVWF      FARG_Lcd_Out_column+0
-	MOVLW      _txt+0
-	MOVWF      FARG_Lcd_Out_text+0
-	CALL       _Lcd_Out+0
-;ProyectoFinalPIC2.c,80 :: 		} while (1);
-	GOTO       L_main0
-;ProyectoFinalPIC2.c,81 :: 		}
+	GOTO       L_main27
+L_main8:
+;ProyectoFinalPIC2.c,137 :: 		}
+L_main6:
+;ProyectoFinalPIC2.c,176 :: 		}
+	GOTO       L_main4
+;ProyectoFinalPIC2.c,177 :: 		}
 L_end_main:
 	GOTO       $+0
 ; end of _main

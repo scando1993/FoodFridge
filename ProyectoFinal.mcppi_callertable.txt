@@ -1,7 +1,7 @@
 main
 	__CC2DW
 		____DoICP
-	UART1_Init
+	I2C1_Init
 	Lcd_Init
 		Delay_5500us
 		Delay_1us
@@ -24,8 +24,11 @@ main
 		Delay_22us
 	Mul_16X16_U
 	Div_16X16_U
-	transmision
-		strlen
-		UART1_Write
+	I2C1_Start
+		I2C1_Is_Idle
+	escribirI2C
+		I2C1_Wr
+	I2C1_Repeated_Start
+	I2C1_Stop
 	ByteToStr
 		Div_8X8_U

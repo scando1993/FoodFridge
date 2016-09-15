@@ -1,82 +1,114 @@
-#line 1 "C:/Users/Daniel Jossemar/Desktop/ProyectoMICRO/ProyectoFinalPIC2.c"
-unsigned short kp, cnt, oldstate = 0;
-char txt[6];
-
-
-char keypadPort at PORTD;
-
-
-
-sbit LCD_RS at RB4_bit;
-sbit LCD_EN at RB5_bit;
-sbit LCD_D4 at RB0_bit;
-sbit LCD_D5 at RB1_bit;
-sbit LCD_D6 at RB2_bit;
-sbit LCD_D7 at RB3_bit;
-
-sbit LCD_RS_Direction at TRISB4_bit;
-sbit LCD_EN_Direction at TRISB5_bit;
-sbit LCD_D4_Direction at TRISB0_bit;
-sbit LCD_D5_Direction at TRISB1_bit;
-sbit LCD_D6_Direction at TRISB2_bit;
-sbit LCD_D7_Direction at TRISB3_bit;
-
-
-void main() {
- cnt = 0;
- Keypad_Init();
+#line 1 "C:/Users/kevin/Downloads/ProyectoMICRO/ProyectoFinalPIC2.c"
+ unsigned short i;
+void init(){
  ANSEL = 0;
  ANSELH = 0;
- Lcd_Init();
- Lcd_Cmd(_LCD_CLEAR);
- Lcd_Cmd(_LCD_CURSOR_OFF);
- Lcd_Out(1, 1, "Iniciando");
- Delay_1sec();
- Delay_1sec();
- Lcd_Cmd(_LCD_CLEAR);
- Lcd_Out(1, 1, "Proceso");
-
- do {
- kp = 0;
+ UART1_Init(9600);
 
 
- do
+ I2C1_Init(8000000);
+ PORTA = 255;
+ TRISA = 255;
+ TRISB=0;
+ PORTB=0;
 
- kp = Keypad_Key_Click();
- while (!kp);
 
- switch (kp) {
 
- case 1: kp = 49; break;
- case 2: kp = 50; break;
- case 3: kp = 51; break;
- case 5: kp = 52; break;
- case 6: kp = 53; break;
- case 7: kp = 54; break;
- case 9: kp = 55; break;
- case 10: kp = 56; break;
- case 11: kp = 57; break;
- case 14: kp = 48; break;
- case 15: kp = 35; break;
+}
+void transmision(unsigned short size_cadena){
+ char i;
+ char valor;
+
+ Delay_ms(500);
+ for(i=0; i < size_cadena; i++){
+ valor = EEPROM_Read(0x00+i);
+ UART1_Write(valor);
 
  }
+}
 
- if (kp != oldstate) {
- cnt = 1;
- oldstate = kp;
+void main() {
+ char buffer1[25];
+ char *p;
+ char *numero;
+ char ctrlz=26;
+ int size=0;
+ char i=0;
+ char flag1=0;
+ int cont=0;
+ char flag2=0;
+ char flag3=0;
+ char pollo = 0;
+ char carne = 0;
+ char leche = 0;
+ char elemento = 0;
+ init();
+ memset(buffer1,'\0',strlen(buffer1));
+ while (1) {
+
+ if(!I2C1_Is_Idle()){
+ elemento = I2C1_Rd(0);
+ switch(elemento){
+ case 0:{
+ pollo = I2C1_Rd(0);
+ numero = "AT+CMGS=\"0985312079\"\r";
+ size = strlen(numero);
+ if(size <= 256){
+ for(i = 0; i < size; i++){
+ EEPROM_Write(0x00+i,numero[i]);
  }
- else {
- cnt++;
+ transmision(size);
  }
-
- Lcd_Chr(1, 10, kp);
-
- if (cnt == 255) {
- cnt = 0;
- Lcd_Out(2, 10, "   ");
+ sprinti(buffer1,"Se tiene las siguientes cantidades de pollo:%d//5",pollo);
+ size = strlen(numero);
+ if(size <= 256){
+ for(i = 0; i < size; i++){
+ EEPROM_Write(0x00+i,numero[i]);
  }
-
- WordToStr(cnt, txt);
- Lcd_Out(2, 10, txt);
- } while (1);
+ transmision(size);
+ }
+ }break;
+ case 1:{
+ leche = I2C1_Rd(0);
+ numero = "AT+CMGS=\"0985312079\"\r";
+ size = strlen(numero);
+ if(size <= 256){
+ for(i = 0; i < size; i++){
+ EEPROM_Write(0x00+i,numero[i]);
+ }
+ transmision(size);
+ }
+ sprinti(buffer1,"Se tiene las siguientes cantidades de leche:%d//5", leche);
+ size = strlen(numero);
+ if(size <= 256){
+ for(i = 0; i < size; i++){
+ EEPROM_Write(0x00+i,numero[i]);
+ }
+ transmision(size);
+ }
+ }break;
+ case 2:{
+ carne = I2C1_Rd(0);
+ numero = "AT+CMGS=\"0985312079\"\r";
+ size = strlen(numero);
+ if(size <= 256){
+ for(i = 0; i < size; i++){
+ EEPROM_Write(0x00+i,numero[i]);
+ }
+ transmision(size);
+ }
+ sprinti(buffer1,"Se tiene las siguientes cantidades de carne:%d//5");
+ size = strlen(numero);
+ if(size <= 256){
+ for(i = 0; i < size; i++){
+ EEPROM_Write(0x00+i,numero[i]);
+ }
+ transmision(size);
+ }
+ }break;
+ }
+#line 137 "C:/Users/kevin/Downloads/ProyectoMICRO/ProyectoFinalPIC2.c"
+ }
+#line 176 "C:/Users/kevin/Downloads/ProyectoMICRO/ProyectoFinalPIC2.c"
+ }
 }

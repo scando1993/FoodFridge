@@ -493,6 +493,7 @@ eepgd_bit
 eeprom_read
 eeprom_write
 equals_double
+escribiri2c
 exp
 expander_init
 expander_init_advanced
@@ -1443,7 +1444,6 @@ tp_init
 tp_press_detect
 tp_set_adc_threshold
 tp_set_calibration_consts
-transmision
 trisa
 trisa0
 trisa0_bit
